@@ -19,6 +19,7 @@ func Setup(app *fiber.App, db *gorm.DB, redisClient *redis.Client, cfg *config.C
 	friendService := services.NewFriendService(db, redisClient)
 	inventoryService := services.NewInventoryService(db)
 	adminService := services.NewAdminService(db, redisClient)
+	gameServerService := services.NewGameServerService(db, redisClient)
 
 	// ── Handlers ──────────────────────────────────────────────────
 	authHandler := handlers.NewAuthHandler(authService)
@@ -28,10 +29,12 @@ func Setup(app *fiber.App, db *gorm.DB, redisClient *redis.Client, cfg *config.C
 	friendHandler := handlers.NewFriendHandler(friendService)
 	inventoryHandler := handlers.NewInventoryHandler(inventoryService)
 	adminHandler := handlers.NewAdminHandler(adminService)
+	internalHandler := handlers.NewInternalHandler(gameServerService, cfg.JWTSecret)
 
 	// ── Middleware ─────────────────────────────────────────────────
 	auth := middleware.AuthRequired(cfg.JWTSecret, redisClient)
 	admin := middleware.AdminRequired(db)
+	internal := middleware.InternalAuth(cfg.GameServerSecret)
 
 	// ── API group ─────────────────────────────────────────────────
 	api := app.Group("/api")
@@ -90,4 +93,16 @@ func Setup(app *fiber.App, db *gorm.DB, redisClient *redis.Client, cfg *config.C
 	adminGroup.Post("/ban", adminHandler.BanPlayer)
 	adminGroup.Post("/unban", adminHandler.UnbanPlayer)
 	adminGroup.Get("/stats", adminHandler.GetServerStats)
+
+	// ── Internal routes (game server only) ────────────────────────
+	// Authenticated via X-Server-Key header, NOT JWT.
+	// These endpoints are called by the C++ game server.
+	internalGroup := app.Group("/internal", internal)
+	internalGroup.Post("/player/validate", internalHandler.ValidatePlayer)
+	internalGroup.Get("/player/:id", internalHandler.GetPlayerInfo)
+	internalGroup.Post("/player/heartbeat", internalHandler.PlayerHeartbeat)
+	internalGroup.Post("/match/start", internalHandler.MatchStart)
+	internalGroup.Post("/match/end", internalHandler.MatchEnd)
+	internalGroup.Get("/match/:id", internalHandler.GetActiveMatch)
+	internalGroup.Patch("/room/status", internalHandler.UpdateRoomStatus)
 }

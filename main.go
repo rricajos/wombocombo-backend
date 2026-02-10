@@ -15,6 +15,7 @@ import (
 	"github.com/wombocombo/api-server/database"
 	mw "github.com/wombocombo/api-server/middleware"
 	"github.com/wombocombo/api-server/routes"
+	"github.com/wombocombo/api-server/workers"
 )
 
 func main() {
@@ -62,20 +63,38 @@ func main() {
 	// Register routes
 	routes.Setup(app, db, redisClient, cfg)
 
-	// Graceful shutdown
+	// Start background workers
+	workerCtx, workerCancel := context.WithCancel(context.Background())
+	if cfg.WorkersEnabled {
+		go workers.StartCleanup(workerCtx, redisClient)
+		go workers.StartMatchProcessor(workerCtx, redisClient, db)
+		go workers.StartSessionHeartbeat(workerCtx, redisClient)
+		log.Info().Msg("background workers started")
+	} else {
+		log.Warn().Msg("background workers disabled")
+	}
+
+	// Start HTTP server
 	go func() {
 		if err := app.Listen(":" + cfg.Port); err != nil {
 			log.Fatal().Err(err).Msg("server error")
 		}
 	}()
 
+	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
 	log.Info().Msg("shutting down server...")
+
+	// Stop workers first
+	workerCancel()
+
+	// Stop HTTP server
 	app.Shutdown()
 
+	// Close database connections
 	sqlDB, _ := db.DB()
 	sqlDB.Close()
 	redisClient.Close()

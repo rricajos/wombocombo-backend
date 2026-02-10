@@ -133,6 +133,8 @@ type ServerStatsResponse struct {
 	TotalPlayers   int64 `json:"total_players"`
 	BannedPlayers  int64 `json:"banned_players"`
 	ActiveSessions int64 `json:"active_sessions"`
+	PlayersInGame  int64 `json:"players_in_game"`
 	ActiveRooms    int64 `json:"active_rooms"`
+	ActiveMatches  int64 `json:"active_matches"`
 	TotalMatches   int64 `json:"total_matches"`
 }

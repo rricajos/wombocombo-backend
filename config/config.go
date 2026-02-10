@@ -25,13 +25,19 @@ type Config struct {
 	RedisDB       int
 
 	// JWT
-	JWTSecret          string
-	JWTExpiration      time.Duration
-	JWTRefreshExpiry   time.Duration
+	JWTSecret        string
+	JWTExpiration    time.Duration
+	JWTRefreshExpiry time.Duration
 
 	// Rate Limit
 	RateLimitMax    int
 	RateLimitWindow time.Duration
+
+	// Game Server
+	GameServerSecret string
+
+	// Workers
+	WorkersEnabled bool
 }
 
 func Load() *Config {
@@ -56,6 +62,10 @@ func Load() *Config {
 
 		RateLimitMax:    getEnvInt("RATE_LIMIT_MAX", 60),
 		RateLimitWindow: time.Duration(getEnvInt("RATE_LIMIT_WINDOW_SECS", 60)) * time.Second,
+
+		GameServerSecret: getEnv("GAME_SERVER_SECRET", "dev-server-secret-change-me"),
+
+		WorkersEnabled: getEnvBool("WORKERS_ENABLED", true),
 	}
 }
 
@@ -84,6 +94,15 @@ func getEnvInt(key string, fallback int) int {
 	if v := os.Getenv(key); v != "" {
 		if i, err := strconv.Atoi(v); err == nil {
 			return i
+		}
+	}
+	return fallback
+}
+
+func getEnvBool(key string, fallback bool) bool {
+	if v := os.Getenv(key); v != "" {
+		if b, err := strconv.ParseBool(v); err == nil {
+			return b
 		}
 	}
 	return fallback
