@@ -15,6 +15,7 @@ type Player struct {
 	DisplayName  string    `gorm:"size:64" json:"display_name"`
 	AvatarID     string    `gorm:"size:32;default:'avatar_01'" json:"avatar_id"`
 	IsBanned     bool      `gorm:"default:false" json:"is_banned"`
+	IsAdmin      bool      `gorm:"default:false" json:"is_admin"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 

@@ -87,3 +87,52 @@ type PaginatedResponse struct {
 type MessageResponse struct {
 	Message string `json:"message"`
 }
+
+// Match history
+type MatchHistoryEntry struct {
+	MatchID         string              `json:"match_id"`
+	RoomID          string              `json:"room_id"`
+	MapID           string              `json:"map_id"`
+	RoundsCompleted int                 `json:"rounds_completed"`
+	StartedAt       time.Time           `json:"started_at"`
+	EndedAt         time.Time           `json:"ended_at"`
+	MyStats         MatchPlayerResult   `json:"my_stats"`
+	Players         []MatchPlayerResult `json:"players"`
+}
+
+// Leaderboard
+type LeaderboardEntry struct {
+	Rank        int    `json:"rank"`
+	PlayerID    string `json:"player_id"`
+	Username    string `json:"username"`
+	DisplayName string `json:"display_name"`
+	AvatarID    string `json:"avatar_id"`
+	Value       int    `json:"value"`
+}
+
+// Friends
+type FriendEntry struct {
+	PlayerID    string    `json:"player_id"`
+	Username    string    `json:"username"`
+	DisplayName string    `json:"display_name"`
+	AvatarID    string    `json:"avatar_id"`
+	Status      string    `json:"status"`
+	IsOnline    bool      `json:"is_online"`
+	Since       time.Time `json:"since"`
+}
+
+// Inventory
+type InventoryEntry struct {
+	ID         uint      `json:"id"`
+	ItemType   string    `json:"item_type"`
+	UnlockedAt time.Time `json:"unlocked_at"`
+}
+
+// Admin
+type ServerStatsResponse struct {
+	TotalPlayers   int64 `json:"total_players"`
+	BannedPlayers  int64 `json:"banned_players"`
+	ActiveSessions int64 `json:"active_sessions"`
+	ActiveRooms    int64 `json:"active_rooms"`
+	TotalMatches   int64 `json:"total_matches"`
+}

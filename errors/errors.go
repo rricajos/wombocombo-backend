@@ -26,13 +26,13 @@ func Wrap(code int, message string, err error) *AppError {
 
 // Common errors
 var (
-	ErrBadRequest       = New(fiber.StatusBadRequest, "bad request")
-	ErrUnauthorized     = New(fiber.StatusUnauthorized, "unauthorized")
-	ErrForbidden        = New(fiber.StatusForbidden, "forbidden")
-	ErrNotFound         = New(fiber.StatusNotFound, "not found")
-	ErrConflict         = New(fiber.StatusConflict, "conflict")
-	ErrTooManyRequests  = New(fiber.StatusTooManyRequests, "too many requests")
-	ErrInternal         = New(fiber.StatusInternalServerError, "internal server error")
+	ErrBadRequest      = New(fiber.StatusBadRequest, "bad request")
+	ErrUnauthorized    = New(fiber.StatusUnauthorized, "unauthorized")
+	ErrForbidden       = New(fiber.StatusForbidden, "forbidden")
+	ErrNotFound        = New(fiber.StatusNotFound, "not found")
+	ErrConflict        = New(fiber.StatusConflict, "conflict")
+	ErrTooManyRequests = New(fiber.StatusTooManyRequests, "too many requests")
+	ErrInternal        = New(fiber.StatusInternalServerError, "internal server error")
 )
 
 func BadRequest(msg string) *AppError {
@@ -45,6 +45,10 @@ func NotFound(resource string) *AppError {
 
 func Conflict(msg string) *AppError {
 	return New(fiber.StatusConflict, msg)
+}
+
+func Forbidden(msg string) *AppError {
+	return New(fiber.StatusForbidden, msg)
 }
 
 func Internal(err error) *AppError {

@@ -37,3 +37,19 @@ type CreateRoomRequest struct {
 	MaxPlayers int    `json:"max_players" validate:"required,min=2,max=4"`
 	IsPublic   bool   `json:"is_public"`
 }
+
+// Friends
+type FriendRequest struct {
+	FriendID string `json:"friend_id" validate:"required,uuid"`
+}
+
+// Inventory
+type UnlockItemRequest struct {
+	ItemType string `json:"item_type" validate:"required,min=1,max=64"`
+}
+
+// Admin
+type BanPlayerRequest struct {
+	PlayerID string `json:"player_id" validate:"required,uuid"`
+	Reason   string `json:"reason" validate:"omitempty,max=255"`
+}
