@@ -2,12 +2,9 @@ FROM golang:1.22-alpine AS build
 
 WORKDIR /app
 
-# Cache deps
-COPY go.mod go.sum ./
-RUN go mod tidy && go mod download
-
-# Build
+# Copy everything first, then resolve deps and build
 COPY . .
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /api-server main.go
 
 # Runtime
